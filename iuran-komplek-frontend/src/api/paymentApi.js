@@ -1,7 +1,7 @@
-import axiosClient from './axiosClient';
+import axiosClient from "./axiosClient";
 
 export const paymentApi = {
-  list: (params) => axiosClient.get('/payments', { params }),
+  list: (params) => axiosClient.get("/payments", { params }),
   get: (id) => axiosClient.get(`/payments/${id}`),
-  create: (data) => axiosClient.post('/payments', data),
+  create: (data) => axiosClient.post("/payments", data),
 };

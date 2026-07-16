@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { paymentApi } from '../../api/paymentApi';
-import { formatCurrency } from '../../utils/formatCurrency';
-import { formatDate, monthName } from '../../utils/formatDate';
-import PaymentForm from './PaymentForm';
+import { useEffect, useState } from "react";
+import { paymentApi } from "../../api/paymentApi";
+import { formatCurrency } from "../../utils/formatCurrency";
+import { formatDate, monthName } from "../../utils/formatDate";
+import PaymentForm from "./PaymentForm";
 
 export default function PaymentList() {
   const [payments, setPayments] = useState([]);
@@ -58,7 +58,8 @@ export default function PaymentList() {
                 <td>
                   {payment.items?.map((item, index) => (
                     <div key={index}>
-                      {item.due_type} - {monthName(item.period_month)} {item.period_year}
+                      {item.due_type} - {monthName(item.period_month)}{" "}
+                      {item.period_year}
                     </div>
                   ))}
                 </td>

@@ -17,7 +17,7 @@ class PaymentResource extends JsonResource
             'total_amount' => (float) $this->total_amount,
             'note' => $this->note,
             'items' => $this->whenLoaded('items', function () {
-                return $this->items->map(fn ($item) => [
+                return $this->items->map(fn($item) => [
                     'id' => $item->id,
                     'due_type' => $item->dueType->name ?? null,
                     'period_month' => $item->period_month,

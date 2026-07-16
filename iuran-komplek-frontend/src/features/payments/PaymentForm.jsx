@@ -1,29 +1,45 @@
-import { useEffect, useState } from 'react';
-import { residentApi } from '../../api/residentApi';
-import { dueTypeApi } from '../../api/dueTypeApi';
-import { paymentApi } from '../../api/paymentApi';
-import { monthName } from '../../utils/formatDate';
-import { formatCurrency } from '../../utils/formatCurrency';
+import { useEffect, useState } from "react";
+import { residentApi } from "../../api/residentApi";
+import { dueTypeApi } from "../../api/dueTypeApi";
+import { paymentApi } from "../../api/paymentApi";
+import { monthName } from "../../utils/formatDate";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 const currentYear = new Date().getFullYear();
+const currentMonth = new Date().getMonth() + 1;
+
+function createEmptyLine(defaultDueTypeId) {
+  return {
+    key: crypto.randomUUID(),
+    due_type_id: defaultDueTypeId || "",
+    month_from: currentMonth,
+    month_to: currentMonth,
+    year: currentYear,
+  };
+}
 
 export default function PaymentForm({ onSaved }) {
   const [residents, setResidents] = useState([]);
   const [dueTypes, setDueTypes] = useState([]);
-  const [residentId, setResidentId] = useState('');
+  const [residentId, setResidentId] = useState("");
   const [selectedResident, setSelectedResident] = useState(null);
-  const [selectedDueTypes, setSelectedDueTypes] = useState([]);
-  const [monthFrom, setMonthFrom] = useState(new Date().getMonth() + 1);
-  const [monthTo, setMonthTo] = useState(new Date().getMonth() + 1);
-  const [year, setYear] = useState(currentYear);
-  const [paymentDate, setPaymentDate] = useState(new Date().toISOString().slice(0, 10));
-  const [note, setNote] = useState('');
+  const [lines, setLines] = useState([]);
+  const [paymentDate, setPaymentDate] = useState(
+    new Date().toISOString().slice(0, 10),
+  );
+  const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    residentApi.list({ per_page: 100 }).then(({ data }) => setResidents(data.data || []));
-    dueTypeApi.list().then(({ data }) => setDueTypes(data));
+    residentApi
+      .list({ per_page: 100 })
+      .then(({ data }) => setResidents(data.data || []));
+    dueTypeApi.list().then(({ data }) => {
+      setDueTypes(data);
+      // Mulai dengan satu baris kosong begitu daftar jenis iuran siap
+      setLines([createEmptyLine(data[0]?.id)]);
+    });
   }, []);
 
   useEffect(() => {
@@ -34,38 +50,59 @@ export default function PaymentForm({ onSaved }) {
     residentApi.get(residentId).then(({ data }) => setSelectedResident(data));
   }, [residentId]);
 
-  const toggleDueType = (dueTypeId) => {
-    setSelectedDueTypes((prev) =>
-      prev.includes(dueTypeId) ? prev.filter((id) => id !== dueTypeId) : [...prev, dueTypeId]
+  const updateLine = (key, field, value) => {
+    setLines((prev) =>
+      prev.map((line) =>
+        line.key === key ? { ...line, [field]: value } : line,
+      ),
     );
   };
 
-  const buildPeriods = () => {
-    const periods = [];
-    for (let month = Number(monthFrom); month <= Number(monthTo); month++) {
-      periods.push(month);
-    }
-    return periods;
+  const addLine = () => {
+    setLines((prev) => [...prev, createEmptyLine(dueTypes[0]?.id)]);
   };
 
-  const estimatedTotal = () => {
-    const periods = buildPeriods();
-    const selectedAmounts = dueTypes
-      .filter((dueType) => selectedDueTypes.includes(dueType.id))
-      .reduce((sum, dueType) => sum + Number(dueType.amount), 0);
-    return selectedAmounts * periods.length;
+  const removeLine = (key) => {
+    setLines((prev) => prev.filter((line) => line.key !== key));
   };
+
+  // Setiap baris = satu jenis iuran dengan rentang bulannya sendiri.
+  // Bisa 1 bulan saja (month_from === month_to) atau rentang bebas
+  // (misalnya bulan 3 sampai 5, atau 1 sampai 12). Tidak ada batasan jenis
+  // iuran tertentu harus bulanan/tahunan - satpam maupun kebersihan berlaku sama.
+  const monthsInLine = (line) => {
+    const from = Number(line.month_from);
+    const to = Number(line.month_to);
+    if (!from || !to || to < from) return [];
+    const months = [];
+    for (let month = from; month <= to; month++) months.push(month);
+    return months;
+  };
+
+  const lineSubtotal = (line) => {
+    const dueType = dueTypes.find(
+      (item) => item.id === Number(line.due_type_id),
+    );
+    if (!dueType) return 0;
+    return Number(dueType.amount) * monthsInLine(line).length;
+  };
+
+  const grandTotal = lines.reduce((sum, line) => sum + lineSubtotal(line), 0);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setSaving(true);
     setErrors({});
 
-    const periods = buildPeriods();
     const items = [];
-    for (const dueTypeId of selectedDueTypes) {
-      for (const month of periods) {
-        items.push({ due_type_id: dueTypeId, period_month: month, period_year: year });
+    for (const line of lines) {
+      const months = monthsInLine(line);
+      for (const month of months) {
+        items.push({
+          due_type_id: Number(line.due_type_id),
+          period_month: month,
+          period_year: Number(line.year),
+        });
       }
     }
 
@@ -95,7 +132,11 @@ export default function PaymentForm({ onSaved }) {
 
       <div className="form-row">
         <label>Penghuni</label>
-        <select value={residentId} onChange={(event) => setResidentId(event.target.value)} required>
+        <select
+          value={residentId}
+          onChange={(event) => setResidentId(event.target.value)}
+          required
+        >
           <option value="">-- Pilih Penghuni --</option>
           {residents.map((resident) => (
             <option key={resident.id} value={resident.id}>
@@ -103,68 +144,130 @@ export default function PaymentForm({ onSaved }) {
             </option>
           ))}
         </select>
-        {errors.resident_id && <span className="form-error">{errors.resident_id[0]}</span>}
+        {errors.resident_id && (
+          <span className="form-error">{errors.resident_id[0]}</span>
+        )}
       </div>
 
       {selectedResident && (
         <div className="info-box">
-          Rumah: {selectedResident.current_house?.house_number || 'Belum terhubung rumah'}
+          Rumah:{" "}
+          {selectedResident.current_house?.house_number ||
+            "Belum terhubung rumah"}
         </div>
       )}
-      {errors.house_id && <span className="form-error">{errors.house_id[0]}</span>}
+      {errors.house_id && (
+        <span className="form-error">{errors.house_id[0]}</span>
+      )}
 
       <div className="form-row">
-        <label>Jenis Iuran</label>
-        <div className="checkbox-group">
-          {dueTypes.map((dueType) => (
-            <label key={dueType.id} className="checkbox-item">
-              <input
-                type="checkbox"
-                checked={selectedDueTypes.includes(dueType.id)}
-                onChange={() => toggleDueType(dueType.id)}
-              />
-              {dueType.name} ({formatCurrency(dueType.amount)}/bulan)
-            </label>
-          ))}
-        </div>
+        <label>Rincian Iuran yang Dibayar</label>
+        <p className="hint-text">
+          Setiap baris di bawah bisa memilih jenis iuran (satpam atau
+          kebersihan) dengan rentang bulannya masing-masing secara bebas: satu
+          bulan saja, atau rentang beberapa bulan (misalnya bulan 3 sampai 5,
+          atau 1 sampai 12). Tidak ada batasan jenis iuran tertentu harus
+          bulanan atau tahunan, keduanya berlaku sama.
+        </p>
+
+        <table className="data-table payment-line-table">
+          <thead>
+            <tr>
+              <th>Jenis Iuran</th>
+              <th>Dari Bulan</th>
+              <th>Sampai Bulan</th>
+              <th>Tahun</th>
+              <th>Jumlah Bulan</th>
+              <th>Subtotal</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {lines.map((line) => (
+              <tr key={line.key}>
+                <td>
+                  <select
+                    value={line.due_type_id}
+                    onChange={(event) =>
+                      updateLine(line.key, "due_type_id", event.target.value)
+                    }
+                  >
+                    {dueTypes.map((dueType) => (
+                      <option key={dueType.id} value={dueType.id}>
+                        {dueType.name} ({formatCurrency(dueType.amount)}/bulan)
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td>
+                  <select
+                    value={line.month_from}
+                    onChange={(event) =>
+                      updateLine(line.key, "month_from", event.target.value)
+                    }
+                  >
+                    {Array.from({ length: 12 }, (_, index) => index + 1).map(
+                      (month) => (
+                        <option key={month} value={month}>
+                          {monthName(month)}
+                        </option>
+                      ),
+                    )}
+                  </select>
+                </td>
+                <td>
+                  <select
+                    value={line.month_to}
+                    onChange={(event) =>
+                      updateLine(line.key, "month_to", event.target.value)
+                    }
+                  >
+                    {Array.from({ length: 12 }, (_, index) => index + 1).map(
+                      (month) => (
+                        <option key={month} value={month}>
+                          {monthName(month)}
+                        </option>
+                      ),
+                    )}
+                  </select>
+                </td>
+                <td>
+                  <input
+                    type="number"
+                    value={line.year}
+                    onChange={(event) =>
+                      updateLine(line.key, "year", event.target.value)
+                    }
+                    style={{ width: "90px" }}
+                  />
+                </td>
+                <td>{monthsInLine(line).length} bulan</td>
+                <td>{formatCurrency(lineSubtotal(line))}</td>
+                <td>
+                  <button
+                    type="button"
+                    className="btn btn-small btn-danger"
+                    onClick={() => removeLine(line.key)}
+                    disabled={lines.length === 1}
+                  >
+                    Hapus
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <button
+          type="button"
+          className="btn btn-secondary btn-small"
+          onClick={addLine}
+        >
+          + Tambah Baris Iuran
+        </button>
+
         {errors.items && <span className="form-error">{errors.items[0]}</span>}
       </div>
-
-      <div className="form-row form-row-inline">
-        <div>
-          <label>Dari Bulan</label>
-          <select value={monthFrom} onChange={(event) => setMonthFrom(event.target.value)}>
-            {Array.from({ length: 12 }, (_, index) => index + 1).map((month) => (
-              <option key={month} value={month}>
-                {monthName(month)}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label>Sampai Bulan</label>
-          <select value={monthTo} onChange={(event) => setMonthTo(event.target.value)}>
-            {Array.from({ length: 12 }, (_, index) => index + 1).map((month) => (
-              <option key={month} value={month}>
-                {monthName(month)}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label>Tahun</label>
-          <input
-            type="number"
-            value={year}
-            onChange={(event) => setYear(event.target.value)}
-          />
-        </div>
-      </div>
-
-      <p className="hint-text">
-        Pilih rentang bulan yang sama untuk bayar sekaligus (misalnya Januari - Desember untuk
-        pembayaran 1 tahun).
-      </p>
 
       <div className="form-row">
         <label>Tanggal Bayar</label>
@@ -181,11 +284,13 @@ export default function PaymentForm({ onSaved }) {
         <input value={note} onChange={(event) => setNote(event.target.value)} />
       </div>
 
-      <div className="total-box">Estimasi Total: {formatCurrency(estimatedTotal())}</div>
+      <div className="total-box">
+        Total Pembayaran: {formatCurrency(grandTotal)}
+      </div>
 
       <div className="form-actions">
         <button type="submit" className="btn btn-primary" disabled={saving}>
-          {saving ? 'Menyimpan...' : 'Simpan Pembayaran'}
+          {saving ? "Menyimpan..." : "Simpan Pembayaran"}
         </button>
       </div>
     </form>
