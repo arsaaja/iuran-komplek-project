@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { residentApi } from '../../api/residentApi';
+import { useState } from "react";
+import { residentApi } from "../../api/residentApi";
 
 const initialState = {
-  name: '',
-  resident_type: 'tetap',
-  phone_number: '',
-  marital_status: 'lajang',
+  name: "",
+  resident_type: "tetap",
+  phone_number: "",
+  marital_status: "lajang",
 };
 
 export default function ResidentForm({ resident, onCancel, onSaved }) {
@@ -17,7 +17,7 @@ export default function ResidentForm({ resident, onCancel, onSaved }) {
           phone_number: resident.phone_number,
           marital_status: resident.marital_status,
         }
-      : initialState
+      : initialState,
   );
   const [ktpPhoto, setKtpPhoto] = useState(null);
   const [errors, setErrors] = useState({});
@@ -36,7 +36,7 @@ export default function ResidentForm({ resident, onCancel, onSaved }) {
     const formData = new FormData();
     Object.entries(form).forEach(([key, value]) => formData.append(key, value));
     if (ktpPhoto) {
-      formData.append('ktp_photo', ktpPhoto);
+      formData.append("ktp_photo", ktpPhoto);
     }
 
     try {
@@ -57,7 +57,7 @@ export default function ResidentForm({ resident, onCancel, onSaved }) {
 
   return (
     <form className="form-card" onSubmit={handleSubmit}>
-      <h2>{resident ? 'Ubah Penghuni' : 'Tambah Penghuni'}</h2>
+      <h2>{resident ? "Ubah Penghuni" : "Tambah Penghuni"}</h2>
 
       <div className="form-row">
         <label>Nama</label>
@@ -72,12 +72,18 @@ export default function ResidentForm({ resident, onCancel, onSaved }) {
           accept="image/*"
           onChange={(event) => setKtpPhoto(event.target.files[0])}
         />
-        {errors.ktp_photo && <span className="form-error">{errors.ktp_photo[0]}</span>}
+        {errors.ktp_photo && (
+          <span className="form-error">{errors.ktp_photo[0]}</span>
+        )}
       </div>
 
       <div className="form-row">
         <label>Status Penghuni</label>
-        <select name="resident_type" value={form.resident_type} onChange={handleChange}>
+        <select
+          name="resident_type"
+          value={form.resident_type}
+          onChange={handleChange}
+        >
           <option value="tetap">Tetap</option>
           <option value="kontrak">Kontrak</option>
         </select>
@@ -91,15 +97,20 @@ export default function ResidentForm({ resident, onCancel, onSaved }) {
           onChange={handleChange}
           required
         />
-        {errors.phone_number && <span className="form-error">{errors.phone_number[0]}</span>}
+        {errors.phone_number && (
+          <span className="form-error">{errors.phone_number[0]}</span>
+        )}
       </div>
 
       <div className="form-row">
         <label>Status Pernikahan</label>
-        <select name="marital_status" value={form.marital_status} onChange={handleChange}>
+        <select
+          name="marital_status"
+          value={form.marital_status}
+          onChange={handleChange}
+        >
           <option value="lajang">Lajang</option>
           <option value="menikah">Menikah</option>
-          <option value="cerai">Cerai</option>
         </select>
       </div>
 
@@ -108,7 +119,7 @@ export default function ResidentForm({ resident, onCancel, onSaved }) {
           Batal
         </button>
         <button type="submit" className="btn btn-primary" disabled={saving}>
-          {saving ? 'Menyimpan...' : 'Simpan'}
+          {saving ? "Menyimpan..." : "Simpan"}
         </button>
       </div>
     </form>

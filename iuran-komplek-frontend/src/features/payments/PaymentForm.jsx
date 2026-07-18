@@ -21,6 +21,8 @@ function createEmptyLine(defaultDueTypeId) {
 export default function PaymentForm({ onSaved }) {
   const [residents, setResidents] = useState([]);
   const [dueTypes, setDueTypes] = useState([]);
+  const [dueTypesLoading, setDueTypesLoading] = useState(true);
+  const [dueTypesError, setDueTypesError] = useState("");
   const [residentId, setResidentId] = useState("");
   const [selectedResident, setSelectedResident] = useState(null);
   const [lines, setLines] = useState([]);
@@ -35,11 +37,25 @@ export default function PaymentForm({ onSaved }) {
     residentApi
       .list({ per_page: 100 })
       .then(({ data }) => setResidents(data.data || []));
-    dueTypeApi.list().then(({ data }) => {
-      setDueTypes(data);
-      // Mulai dengan satu baris kosong begitu daftar jenis iuran siap
-      setLines([createEmptyLine(data[0]?.id)]);
-    });
+
+    dueTypeApi
+      .list()
+      .then(({ data }) => {
+        setDueTypes(data);
+        if (data.length === 0) {
+          setDueTypesError(
+            "Belum ada data jenis iuran di database. Tambahkan dulu data jenis iuran (misalnya lewat seeder atau langsung ke tabel due_types) sebelum bisa mencatat pembayaran.",
+          );
+        }
+        // Mulai dengan satu baris kosong begitu daftar jenis iuran siap
+        setLines([createEmptyLine(data[0]?.id)]);
+      })
+      .catch(() => {
+        setDueTypesError(
+          "Gagal memuat data jenis iuran dari server. Pastikan backend menyala dan kamu masih login, lalu coba muat ulang halaman ini.",
+        );
+      })
+      .finally(() => setDueTypesLoading(false));
   }, []);
 
   useEffect(() => {
@@ -162,6 +178,14 @@ export default function PaymentForm({ onSaved }) {
 
       <div className="form-row">
         <label>Rincian Iuran yang Dibayar</label>
+
+        {dueTypesLoading && (
+          <p className="hint-text">Memuat daftar jenis iuran...</p>
+        )}
+        {!dueTypesLoading && dueTypesError && (
+          <p className="form-error">{dueTypesError}</p>
+        )}
+
         <p className="hint-text">
           Setiap baris di bawah bisa memilih jenis iuran (satpam atau
           kebersihan) dengan rentang bulannya masing-masing secara bebas: satu
@@ -262,6 +286,7 @@ export default function PaymentForm({ onSaved }) {
           type="button"
           className="btn btn-secondary btn-small"
           onClick={addLine}
+          disabled={dueTypes.length === 0}
         >
           + Tambah Baris Iuran
         </button>
@@ -289,7 +314,11 @@ export default function PaymentForm({ onSaved }) {
       </div>
 
       <div className="form-actions">
-        <button type="submit" className="btn btn-primary" disabled={saving}>
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={saving || dueTypes.length === 0}
+        >
           {saving ? "Menyimpan..." : "Simpan Pembayaran"}
         </button>
       </div>

@@ -18,7 +18,7 @@ class StoreResidentRequest extends FormRequest
             'ktp_photo' => ['nullable', 'image', 'max:2048'],
             'resident_type' => ['required', 'in:tetap,kontrak'],
             'phone_number' => ['required', 'string', 'max:20'],
-            'marital_status' => ['required', 'in:lajang,menikah,cerai'],
+            'marital_status' => ['required', 'in:lajang,menikah'],
         ];
     }
 

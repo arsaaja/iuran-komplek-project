@@ -5,7 +5,11 @@
   --color-bg: #f3f4f6;
   --color-border: #e5e7eb;
   --color-text: #1f2937;
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family:
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 * {
@@ -326,6 +330,21 @@ select {
   gap: 0.6rem;
 }
 
+.period-summary-list {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.period-summary-list li {
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.period-summary-meta {
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
 /* ============ MODAL ============ */
 .modal-overlay {
   position: fixed;
@@ -344,4 +363,10 @@ select {
   width: 500px;
   max-height: 80vh;
   overflow-y: auto;
+}
+
+.page-loading {
+  padding: 2rem;
+  color: #6b7280;
+  text-align: center;
 }
