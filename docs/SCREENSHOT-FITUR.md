@@ -12,7 +12,7 @@ Fitur ini digunakan untuk mencatat data setiap penghuni komplek secara lengkap, 
 nama, foto KTP, status sebagai penghuni tetap atau kontrak, nomor telepon, hingga status
 pernikahan (lajang atau menikah), dan data tersebut bisa ditambah maupun diubah kapan saja
 lewat satu form yang sama. Sesuai kebutuhan, fitur ini hanya mencakup tambah, lihat, dan
-ubah data, tanpa opsi hapus.
+ubah data.
 
 Implementasi teknis: ResidentController, StoreResidentRequest,
 UpdateResidentRequest di backend; ResidentList.jsx, ResidentForm.jsx di frontend.
@@ -22,6 +22,8 @@ UpdateResidentRequest di backend; ResidentList.jsx, ResidentForm.jsx di frontend
 ![Kelola Rumah](../screenshot/doc-2-kelola-rumah.png)
 ![Halaman Edit Rumah](../screenshot/doc-2b-rumah-edit.png)
 ![Daftar Rumah](../screenshot/doc-2c-rumah-daftar.png)
+![Riwayat Penghuni Rumah](../screenshot/doc-2d-rumah-riwayat-penghuni.png)
+![Riwayat Pembayaran Rumah](../screenshot/doc-2d-rumah-riwayat-pembayaran.png)
 
 Fitur ini mencatat data setiap rumah di komplek berupa nomor rumah, tipe tetap atau
 kontrak, serta status huninya, dan secara otomatis mewajibkan pengisian nama penghuni
@@ -30,7 +32,7 @@ dihuni tanpa penghuni yang jelas, sekaligus menyimpan riwayat pergantian penghun
 waktu ke waktu yang bisa dibuka kembali kapan saja. Data awal 20 rumah (15 tetap + 5
 kontrak) sudah tersedia lewat seeder, dan tombol "Tambah Rumah" tetap disediakan untuk
 penambahan unit baru di masa depan. Sama seperti data penghuni, fitur ini hanya mencakup
-tambah, lihat, dan ubah data, tanpa opsi hapus.
+tambah, lihat, dan ubah data.
 
 Implementasi teknis: HouseController, endpoint tambahan
 GET /houses/{id}/histories di backend; HouseList.jsx, HouseForm.jsx,

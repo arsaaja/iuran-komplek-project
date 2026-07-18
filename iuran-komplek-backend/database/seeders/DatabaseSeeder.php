@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             DueTypeSeeder::class,
             ResidentSeeder::class,
             HouseSeeder::class,
+            BillingPeriodSeeder::class,
         ]);
     }
 }
