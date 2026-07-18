@@ -44,16 +44,25 @@ class PaymentService
                     'status' => 'lunas',
                 ]);
 
-                // Tandai tagihan (billing_periods) terkait jadi lunas jika ada
-                BillingPeriod::query()
-                    ->where('house_id', $data['house_id'])
-                    ->where('due_type_id', $dueType->id)
-                    ->where('period_month', $item['period_month'])
-                    ->where('period_year', $item['period_year'])
-                    ->update([
+                // Tandai tagihan (billing_periods) terkait jadi lunas.
+                // Pakai updateOrCreate (bukan cuma update) supaya kalau baris
+                // tagihannya belum pernah di-generate lewat billing:generate,
+                // tetap otomatis dibuatkan di sini saat ada pembayaran masuk -
+                // jadi selalu muncul di Riwayat Pembayaran Rumah.
+                BillingPeriod::query()->updateOrCreate(
+                    [
+                        'house_id' => $data['house_id'],
+                        'due_type_id' => $dueType->id,
+                        'period_month' => $item['period_month'],
+                        'period_year' => $item['period_year'],
+                    ],
+                    [
+                        'resident_id' => $data['resident_id'],
+                        'amount' => $dueType->amount,
                         'status' => 'lunas',
                         'payment_item_id' => $paymentItem->id,
-                    ]);
+                    ]
+                );
             }
 
             return $payment->load('items.dueType');

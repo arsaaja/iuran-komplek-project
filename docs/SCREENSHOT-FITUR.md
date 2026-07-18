@@ -1,18 +1,12 @@
-# Dokumentasi Fitur - Aplikasi Iuran Bulanan Komplek
-
-Cara pakai dokumen ini: taruh foto screenshot aplikasi di folder yang sama (folder root)
-dengan file dokumentasi ini, beri nama file sesuai yang tertulis di bawah tiap fitur (atau
-kalau nama filenya beda, tinggal sesuaikan nama di dalam tanda kurung pada link gambar).
-Kalau dokumen ini nanti ditempel ke badan email dalam format HTML/Word, link gambar akan
-otomatis menampilkan fotonya.
+# Dokumentasi Fitur - Aplikasi Iuran Bulanan Kompleks
 
 ---
 
 ## 1. Kelola Penghuni
 
 ![Kelola Penghuni](../screenshot/doc-1-kelola-penghuni.png)
-![Halaman Edit Penghuni](./doc-1b-penghuni-edit.png)
-![Daftar Penghuni](./doc-1c-penghuni-daftar.png)
+![Halaman Edit Penghuni](../screenshot/doc-1b-penghuni-edit.png)
+![Daftar Penghuni](../screenshot/doc-1c-penghuni-daftar.png)
 
 Fitur ini digunakan untuk mencatat data setiap penghuni komplek secara lengkap, mulai dari
 nama, foto KTP, status sebagai penghuni tetap atau kontrak, nomor telepon, hingga status
@@ -26,8 +20,8 @@ UpdateResidentRequest di backend; ResidentList.jsx, ResidentForm.jsx di frontend
 ## 2. Kelola Rumah dan Riwayat Penghuni
 
 ![Kelola Rumah](../screenshot/doc-2-kelola-rumah.png)
-![Halaman Edit Rumah](./doc-2b-rumah-edit.png)
-![Daftar Rumah](./doc-2c-rumah-daftar.png)
+![Halaman Edit Rumah](../screenshot/doc-2b-rumah-edit.png)
+![Daftar Rumah](../screenshot/doc-2c-rumah-daftar.png)
 
 Fitur ini mencatat data setiap rumah di komplek berupa nomor rumah, tipe tetap atau
 kontrak, serta status huninya, dan secara otomatis mewajibkan pengisian nama penghuni
@@ -45,6 +39,7 @@ HouseHistory.jsx di frontend.
 ## 3. Pembayaran Iuran
 
 ![Pembayaran Iuran](../screenshot/doc-4-pembayaran.png)
+![Tambah Pembayaran](../screenshot/doc-4b-tambah-pembayaran.png)
 
 Fitur ini mencatat pembayaran iuran dari penghuni, dengan dua jenis iuran yang sudah
 tersedia secara otomatis, yaitu iuran satpam dan iuran kebersihan. Setiap kali input

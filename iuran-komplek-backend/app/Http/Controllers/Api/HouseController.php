@@ -17,8 +17,8 @@ class HouseController extends Controller
     {
         $houses = House::query()
             ->with('currentResident')
-            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
-            ->when($request->filled('house_type'), fn ($q) => $q->where('house_type', $request->house_type))
+            ->when($request->filled('status'), fn($q) => $q->where('status', $request->status))
+            ->when($request->filled('house_type'), fn($q) => $q->where('house_type', $request->house_type))
             ->orderBy('house_number')
             ->paginate($request->integer('per_page', 15));
 
@@ -81,17 +81,36 @@ class HouseController extends Controller
         return response()->json(new HouseResource($house->load('currentResident')));
     }
 
-    public function destroy(House $house): JsonResponse
-    {
-        $house->delete();
-
-        return response()->json(['message' => 'Rumah berhasil dihapus.']);
-    }
-
     public function histories(House $house): JsonResponse
     {
         $histories = $house->histories()->with('resident')->get();
 
         return response()->json(HouseResidentHistoryResource::collection($histories));
+    }
+
+    /**
+     * Riwayat tagihan/pembayaran untuk satu rumah: siapa penghuni yang wajib
+     * membayar, jenis iuran apa, periode kapan, dan statusnya lunas/belum.
+     * Sumber datanya tabel billing_periods (tagihan yang sudah di-generate
+     * lewat `php artisan billing:generate` atau otomatis via scheduler).
+     */
+    public function billingHistory(House $house): JsonResponse
+    {
+        $billingPeriods = $house->billingPeriods()
+            ->with(['resident', 'dueType'])
+            ->orderByDesc('period_year')
+            ->orderByDesc('period_month')
+            ->get()
+            ->map(fn($billing) => [
+                'id' => $billing->id,
+                'resident' => $billing->resident?->name,
+                'due_type' => $billing->dueType?->name,
+                'period_month' => $billing->period_month,
+                'period_year' => $billing->period_year,
+                'amount' => (float) $billing->amount,
+                'status' => $billing->status,
+            ]);
+
+        return response()->json($billingPeriods);
     }
 }

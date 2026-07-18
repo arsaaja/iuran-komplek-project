@@ -17,10 +17,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('me', [AuthController::class, 'me']);
 
     // ================= MASTER DATA =================
-    Route::apiResource('residents', ResidentController::class);
+    Route::apiResource('residents', ResidentController::class)->except(['destroy']);
     Route::apiResource('houses', HouseController::class)->except(['destroy']);
-    Route::delete('houses/{house}', [HouseController::class, 'destroy']);
     Route::get('houses/{house}/histories', [HouseController::class, 'histories']);
+    Route::get('houses/{house}/billing-history', [HouseController::class, 'billingHistory']);
 
     Route::apiResource('due-types', DueTypeController::class)->except(['show']);
 

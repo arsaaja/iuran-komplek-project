@@ -17,8 +17,8 @@ class ResidentController extends Controller
     {
         $residents = Resident::query()
             ->with('currentHouse')
-            ->when($request->filled('resident_type'), fn ($q) => $q->where('resident_type', $request->resident_type))
-            ->when($request->filled('search'), fn ($q) => $q->where('name', 'like', '%'.$request->search.'%'))
+            ->when($request->filled('resident_type'), fn($q) => $q->where('resident_type', $request->resident_type))
+            ->when($request->filled('search'), fn($q) => $q->where('name', 'like', '%' . $request->search . '%'))
             ->orderBy('name')
             ->paginate($request->integer('per_page', 15));
 
@@ -57,12 +57,5 @@ class ResidentController extends Controller
         $resident->update($data);
 
         return response()->json(new ResidentResource($resident));
-    }
-
-    public function destroy(Resident $resident): JsonResponse
-    {
-        $resident->delete();
-
-        return response()->json(['message' => 'Penghuni berhasil dihapus.']);
     }
 }

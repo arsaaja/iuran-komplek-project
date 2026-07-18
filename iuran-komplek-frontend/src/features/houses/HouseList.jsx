@@ -1,14 +1,19 @@
-import { useEffect, useState } from 'react';
-import { houseApi } from '../../api/houseApi';
-import HouseForm from './HouseForm';
-import HouseHistory from './HouseHistory';
+import { useEffect, useState } from "react";
+import { houseApi } from "../../api/houseApi";
+import HouseForm from "./HouseForm";
+import HouseHistory from "./HouseHistory";
+import HouseBillingHistory from "./HouseBillingHistory";
 
+// Sesuai spesifikasi: rumah hanya perlu Create, Read, Update (tanpa Delete).
+// Data awal 20 rumah (15 tetap + 5 kontrak) sudah diisi lewat seeder, tapi
+// tombol "Tambah Rumah" tetap disediakan untuk penambahan unit baru di masa depan.
 export default function HouseList() {
   const [houses, setHouses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [historyHouseId, setHistoryHouseId] = useState(null);
+  const [billingHistoryHouseId, setBillingHistoryHouseId] = useState(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -24,12 +29,6 @@ export default function HouseList() {
   const handleEdit = (house) => {
     setEditing(house);
     setShowForm(true);
-  };
-
-  const handleDelete = async (house) => {
-    if (!window.confirm(`Hapus data rumah "${house.house_number}"?`)) return;
-    await houseApi.remove(house.id);
-    loadData();
   };
 
   const handleSaved = () => {
@@ -54,11 +53,25 @@ export default function HouseList() {
       </div>
 
       {showForm && (
-        <HouseForm house={editing} onCancel={() => setShowForm(false)} onSaved={handleSaved} />
+        <HouseForm
+          house={editing}
+          onCancel={() => setShowForm(false)}
+          onSaved={handleSaved}
+        />
       )}
 
       {historyHouseId && (
-        <HouseHistory houseId={historyHouseId} onClose={() => setHistoryHouseId(null)} />
+        <HouseHistory
+          houseId={historyHouseId}
+          onClose={() => setHistoryHouseId(null)}
+        />
+      )}
+
+      {billingHistoryHouseId && (
+        <HouseBillingHistory
+          houseId={billingHistoryHouseId}
+          onClose={() => setBillingHistoryHouseId(null)}
+        />
       )}
 
       {loading ? (
@@ -78,28 +91,31 @@ export default function HouseList() {
             {houses.map((house) => (
               <tr key={house.id}>
                 <td>{house.house_number}</td>
-                <td>{house.house_type === 'tetap' ? 'Tetap' : 'Kontrak'}</td>
+                <td>{house.house_type === "tetap" ? "Tetap" : "Kontrak"}</td>
                 <td>
                   <span className={`badge badge-${house.status}`}>
-                    {house.status === 'dihuni' ? 'Dihuni' : 'Tidak Dihuni'}
+                    {house.status === "dihuni" ? "Dihuni" : "Tidak Dihuni"}
                   </span>
                 </td>
-                <td>{house.current_resident?.name || '-'}</td>
+                <td>{house.current_resident?.name || "-"}</td>
                 <td className="table-actions">
-                  <button className="btn btn-small" onClick={() => handleEdit(house)}>
+                  <button
+                    className="btn btn-small"
+                    onClick={() => handleEdit(house)}
+                  >
                     Ubah
                   </button>
                   <button
                     className="btn btn-small"
                     onClick={() => setHistoryHouseId(house.id)}
                   >
-                    Riwayat
+                    Riwayat Penghuni
                   </button>
                   <button
-                    className="btn btn-small btn-danger"
-                    onClick={() => handleDelete(house)}
+                    className="btn btn-small"
+                    onClick={() => setBillingHistoryHouseId(house.id)}
                   >
-                    Hapus
+                    Riwayat Pembayaran
                   </button>
                 </td>
               </tr>

@@ -10,12 +10,7 @@ use Illuminate\Database\Seeder;
 class HouseSeeder extends Seeder
 {
     /**
-     * Membuat 20 rumah (15 tetap + 5 kontrak) sesuai jumlah di spesifikasi awal,
-     * dan langsung menghubungkannya ke penghuni dari ResidentSeeder (harus
-     * dijalankan lebih dulu). Semua rumah dibuat berstatus "dihuni" sebagai
-     * data awal; untuk menguji aturan "rumah kontrak hanya ditagih kalau ada
-     * penghuninya", tinggal ubah status salah satu rumah kontrak jadi
-     * "tidak_dihuni" lewat halaman Rumah setelah data ini di-seed.
+     * Membuat 20 rumah (15 tetap + 5 kontrak) 
      */
     public function run(): void
     {
@@ -57,7 +52,7 @@ class HouseSeeder extends Seeder
             ->whereNull('end_date')
             ->exists();
 
-        if (! $alreadyRecorded) {
+        if (!$alreadyRecorded) {
             HouseResidentHistory::query()->create([
                 'house_id' => $house->id,
                 'resident_id' => $resident->id,

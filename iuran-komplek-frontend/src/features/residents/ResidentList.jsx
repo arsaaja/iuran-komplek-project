@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { residentApi } from '../../api/residentApi';
-import ResidentForm from './ResidentForm';
+import { useEffect, useState } from "react";
+import { residentApi } from "../../api/residentApi";
+import ResidentForm from "./ResidentForm";
 
 export default function ResidentList() {
   const [residents, setResidents] = useState([]);
@@ -22,12 +22,6 @@ export default function ResidentList() {
   const handleEdit = (resident) => {
     setEditing(resident);
     setShowForm(true);
-  };
-
-  const handleDelete = async (resident) => {
-    if (!window.confirm(`Hapus data penghuni "${resident.name}"?`)) return;
-    await residentApi.remove(resident.id);
-    loadData();
   };
 
   const handleSaved = () => {
@@ -79,21 +73,18 @@ export default function ResidentList() {
                 <td>{resident.name}</td>
                 <td>
                   <span className={`badge badge-${resident.resident_type}`}>
-                    {resident.resident_type === 'tetap' ? 'Tetap' : 'Kontrak'}
+                    {resident.resident_type === "tetap" ? "Tetap" : "Kontrak"}
                   </span>
                 </td>
                 <td>{resident.phone_number}</td>
                 <td>{resident.marital_status}</td>
-                <td>{resident.current_house?.house_number || '-'}</td>
+                <td>{resident.current_house?.house_number || "-"}</td>
                 <td className="table-actions">
-                  <button className="btn btn-small" onClick={() => handleEdit(resident)}>
-                    Ubah
-                  </button>
                   <button
-                    className="btn btn-small btn-danger"
-                    onClick={() => handleDelete(resident)}
+                    className="btn btn-small"
+                    onClick={() => handleEdit(resident)}
                   >
-                    Hapus
+                    Ubah
                   </button>
                 </td>
               </tr>
