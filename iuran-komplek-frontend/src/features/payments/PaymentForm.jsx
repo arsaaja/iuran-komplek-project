@@ -25,7 +25,7 @@ export default function PaymentForm({ onSaved }) {
   const [selectedResident, setSelectedResident] = useState(null);
   const [lines, setLines] = useState([]);
   const [paymentDate, setPaymentDate] = useState(
-    new Date().toISOString().slice(0, 10),
+    new Date().toISOString().slice(0, 16),
   );
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
@@ -270,9 +270,9 @@ export default function PaymentForm({ onSaved }) {
       </div>
 
       <div className="form-row">
-        <label>Tanggal Bayar</label>
+        <label>Tanggal &amp; Jam Bayar</label>
         <input
-          type="date"
+          type="datetime-local"
           value={paymentDate}
           onChange={(event) => setPaymentDate(event.target.value)}
           required

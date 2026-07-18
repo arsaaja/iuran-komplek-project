@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { paymentApi } from "../../api/paymentApi";
 import { formatCurrency } from "../../utils/formatCurrency";
-import { formatDate, monthName } from "../../utils/formatDate";
+import { formatDateTime } from "../../utils/formatDate";
+import { summarizePaymentItems } from "../../utils/paymentPeriods";
 import PaymentForm from "./PaymentForm";
 
 export default function PaymentList() {
@@ -42,7 +43,7 @@ export default function PaymentList() {
         <table className="data-table">
           <thead>
             <tr>
-              <th>Tanggal</th>
+              <th>Tanggal &amp; Jam</th>
               <th>Penghuni</th>
               <th>Rumah</th>
               <th>Rincian Periode</th>
@@ -50,22 +51,31 @@ export default function PaymentList() {
             </tr>
           </thead>
           <tbody>
-            {payments.map((payment) => (
-              <tr key={payment.id}>
-                <td>{formatDate(payment.payment_date)}</td>
-                <td>{payment.resident?.name}</td>
-                <td>{payment.house?.house_number}</td>
-                <td>
-                  {payment.items?.map((item, index) => (
-                    <div key={index}>
-                      {item.due_type} - {monthName(item.period_month)}{" "}
-                      {item.period_year}
-                    </div>
-                  ))}
-                </td>
-                <td>{formatCurrency(payment.total_amount)}</td>
-              </tr>
-            ))}
+            {payments.map((payment) => {
+              const summaries = summarizePaymentItems(payment.items);
+
+              return (
+                <tr key={payment.id}>
+                  <td>{formatDateTime(payment.payment_date)}</td>
+                  <td>{payment.resident?.name}</td>
+                  <td>{payment.house?.house_number}</td>
+                  <td>
+                    <ul className="period-summary-list">
+                      {summaries.map((summary, index) => (
+                        <li key={index}>
+                          <strong>{summary.dueType}</strong>: {summary.label}{" "}
+                          <span className="period-summary-meta">
+                            ({summary.monthCount} bulan,{" "}
+                            {formatCurrency(summary.totalAmount)})
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </td>
+                  <td>{formatCurrency(payment.total_amount)}</td>
+                </tr>
+              );
+            })}
             {payments.length === 0 && (
               <tr>
                 <td colSpan={5}>Belum ada data pembayaran.</td>

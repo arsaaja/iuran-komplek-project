@@ -1,13 +1,12 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink } from "react-router-dom";
 
 const menuItems = [
-  { to: '/', label: 'Ringkasan Laporan', end: true },
-  { to: '/penghuni', label: 'Penghuni' },
-  { to: '/rumah', label: 'Rumah' },
-  { to: '/jenis-iuran', label: 'Jenis Iuran' },
-  { to: '/pembayaran', label: 'Pembayaran' },
-  { to: '/pengeluaran', label: 'Pengeluaran' },
-  { to: '/laporan-bulanan', label: 'Detail Laporan Bulanan' },
+  { to: "/", label: "Ringkasan Laporan", end: true },
+  { to: "/penghuni", label: "Penghuni" },
+  { to: "/rumah", label: "Rumah" },
+  { to: "/pembayaran", label: "Pembayaran" },
+  { to: "/pengeluaran", label: "Pengeluaran" },
+  { to: "/laporan-bulanan", label: "Detail Laporan Bulanan" },
 ];
 
 export default function Sidebar() {
@@ -20,7 +19,9 @@ export default function Sidebar() {
             key={item.to}
             to={item.to}
             end={item.end}
-            className={({ isActive }) => 'sidebar-link' + (isActive ? ' active' : '')}
+            className={({ isActive }) =>
+              "sidebar-link" + (isActive ? " active" : "")
+            }
           >
             {item.label}
           </NavLink>

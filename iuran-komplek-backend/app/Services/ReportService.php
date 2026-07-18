@@ -63,19 +63,19 @@ class ReportService
             ->where('period_month', $month)
             ->where('period_year', $year)
             ->get()
-            ->map(fn ($item) => [
+            ->map(fn($item) => [
                 'resident' => $item->payment->resident->name ?? null,
                 'house_number' => $item->payment->house->house_number ?? null,
                 'due_type' => $item->dueType->name ?? null,
                 'amount' => (float) $item->amount,
-                'paid_at' => $item->payment->payment_date?->toDateString(),
+                'paid_at' => $item->payment->payment_date?->toDateTimeString(),
             ]);
 
         $expenses = Expense::query()
             ->whereMonth('expense_date', $month)
             ->whereYear('expense_date', $year)
             ->get(['category', 'amount', 'expense_date', 'description'])
-            ->map(fn ($expense) => [
+            ->map(fn($expense) => [
                 'category' => $expense->category,
                 'amount' => (float) $expense->amount,
                 'date' => $expense->expense_date?->toDateString(),

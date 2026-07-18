@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react';
-import { reportApi } from '../../api/reportApi';
-import { formatCurrency } from '../../utils/formatCurrency';
-import { formatDate, monthName } from '../../utils/formatDate';
+import { useEffect, useState } from "react";
+import { reportApi } from "../../api/reportApi";
+import { formatCurrency } from "../../utils/formatCurrency";
+import { formatDate, formatDateTime, monthName } from "../../utils/formatDate";
 
 const currentDate = new Date();
-const yearOptions = Array.from({ length: 6 }, (_, index) => currentDate.getFullYear() - index);
+const yearOptions = Array.from(
+  { length: 6 },
+  (_, index) => currentDate.getFullYear() - index,
+);
 
 export default function MonthlyDetailReport() {
   const [month, setMonth] = useState(currentDate.getMonth() + 1);
@@ -25,14 +28,22 @@ export default function MonthlyDetailReport() {
       <div className="page-header">
         <h1>Detail Laporan Bulanan</h1>
         <div className="filter-group">
-          <select value={month} onChange={(event) => setMonth(Number(event.target.value))}>
-            {Array.from({ length: 12 }, (_, index) => index + 1).map((monthOption) => (
-              <option key={monthOption} value={monthOption}>
-                {monthName(monthOption)}
-              </option>
-            ))}
+          <select
+            value={month}
+            onChange={(event) => setMonth(Number(event.target.value))}
+          >
+            {Array.from({ length: 12 }, (_, index) => index + 1).map(
+              (monthOption) => (
+                <option key={monthOption} value={monthOption}>
+                  {monthName(monthOption)}
+                </option>
+              ),
+            )}
           </select>
-          <select value={year} onChange={(event) => setYear(Number(event.target.value))}>
+          <select
+            value={year}
+            onChange={(event) => setYear(Number(event.target.value))}
+          >
             {yearOptions.map((yearOption) => (
               <option key={yearOption} value={yearOption}>
                 {yearOption}
@@ -82,7 +93,7 @@ export default function MonthlyDetailReport() {
                   <td>{income.resident}</td>
                   <td>{income.house_number}</td>
                   <td>{income.due_type}</td>
-                  <td>{formatDate(income.paid_at)}</td>
+                  <td>{formatDateTime(income.paid_at)}</td>
                   <td>{formatCurrency(income.amount)}</td>
                 </tr>
               ))}
@@ -109,7 +120,7 @@ export default function MonthlyDetailReport() {
                 <tr key={index}>
                   <td>{formatDate(expense.date)}</td>
                   <td>{expense.category}</td>
-                  <td>{expense.description || '-'}</td>
+                  <td>{expense.description || "-"}</td>
                   <td>{formatCurrency(expense.amount)}</td>
                 </tr>
               ))}

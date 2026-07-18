@@ -22,7 +22,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('houses/{house}', [HouseController::class, 'destroy']);
     Route::get('houses/{house}/histories', [HouseController::class, 'histories']);
 
-    Route::apiResource('due-types', DueTypeController::class)->except(['show']);
 
     // ================= TRANSAKSI =================
     Route::apiResource('payments', PaymentController::class)->only(['index', 'store', 'show']);

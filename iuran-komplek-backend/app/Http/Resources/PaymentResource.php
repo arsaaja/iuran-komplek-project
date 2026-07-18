@@ -13,7 +13,7 @@ class PaymentResource extends JsonResource
             'id' => $this->id,
             'resident' => new ResidentResource($this->whenLoaded('resident')),
             'house' => new HouseResource($this->whenLoaded('house')),
-            'payment_date' => $this->payment_date?->toDateString(),
+            'payment_date' => $this->payment_date?->toDateTimeString(),
             'total_amount' => (float) $this->total_amount,
             'note' => $this->note,
             'items' => $this->whenLoaded('items', function () {
